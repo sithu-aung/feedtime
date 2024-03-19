@@ -88,9 +88,9 @@ class _ScrollingScreenState extends ConsumerState<ScrollingScreen> {
   addDemoData() async {
     final isar = ref.watch(isarProvider);
 
-    await isar.writeTxn(() async {
-      isar.reportDatas.where().sortByDateTime().limit(7).deleteAll();
-    });
+    // await isar.writeTxn(() async {
+    //   isar.reportDatas.where().sortByDateTime().limit(7).deleteAll();
+    // });
 
     isar.reportDatas
         .where()
