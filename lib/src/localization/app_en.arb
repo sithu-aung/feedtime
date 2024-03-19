@@ -1,0 +1,14 @@
+{
+  "appTitle": "feedtime",
+  "check_time_spent_graph": "Check Time Spent Graph",
+  "time_spent": "Time Spent on Feed",
+  "set_reminder":"Set Reminder",
+  "friendly_reminder":"Friendly reminder to limit screen time & take steps to get outdoors.",
+  "done":"Done",
+  "times_up":"Times up!. Let's go out now!",
+  "spent":"You have spent",
+  "scrolling_time":"mins scrolling feed. Let's find a trail pal or event for you to go out.",
+  "remind_later":"Remind me later"
+
+
+}
