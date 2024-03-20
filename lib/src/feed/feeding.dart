@@ -78,6 +78,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
                           MaterialPageRoute(builder: (context) {
                         return const ReportScreen();
                       }));
+                      getReminderMinute();
                       context.read<FeedCubit>().loadTimer();
                     },
                     title: AppLocalizations.of(context)!.check_time_spent_graph,
