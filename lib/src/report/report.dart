@@ -1,37 +1,45 @@
-import 'dart:developer';
+import 'package:feedtime/src/bloc/report.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:feedtime/src/constants/constants.dart';
-import 'package:feedtime/src/providers/providers.dart';
 import 'package:feedtime/src/report/widgets/common_button.dart';
 import 'package:feedtime/src/report/widgets/common_radios.dart';
 import 'package:feedtime/src/report/widgets/time_spent_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ReportScreen extends ConsumerStatefulWidget {
+class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
   @override
-  ConsumerState<ReportScreen> createState() => _ReportScreenState();
+  State<ReportScreen> createState() => _ReportScreenState();
 }
 
-class _ReportScreenState extends ConsumerState<ReportScreen> {
+class _ReportScreenState extends State<ReportScreen> {
   var selectedOption = 0;
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      int reminderMinute = ref.watch(reminderMinutesProvider);
-      setState(() {
-        selectedOption = reminderMins.indexOf(reminderMinute);
-      });
-    });
+    context.read<ReportCubit>().fetchLastWeekData();
+    getReminderMinute();
     super.initState();
+  }
+
+  getReminderMinute() async {
+    var sharedPrefs = await SharedPreferences.getInstance();
+    var reminderMinute = sharedPrefs.getInt('reminderMins') ?? 0;
+    setState(() {
+      selectedOption = reminderMins.indexOf(reminderMinute);
+    });
+  }
+
+  setReminderMinute(int reminderMins) async {
+    var sharedPrefs = await SharedPreferences.getInstance();
+    sharedPrefs.setInt("reminderMins", reminderMins);
   }
 
   @override
   Widget build(BuildContext context) {
-    var lastWeekData = ref.watch(lastWeekDataProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -69,36 +77,43 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
           shrinkWrap: true,
           children: [
             30.vGap,
-            lastWeekData.when(
-              data: (data) {
-                log(data.length.toString());
-                return ListView(
-                  shrinkWrap: true,
-                  children: [
-                    TimeSpentChart(
-                      reports: data,
-                    ),
-                    const Align(
-                      alignment: Alignment.bottomRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 0, right: 30),
-                        child: Text(
-                          "(Today)",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: greenDarkColor,
+            BlocBuilder<ReportCubit, ReportState>(
+              builder: (context, state) {
+                if (state is ReportLoadedState) {
+                  final data = state.reportData;
+                  return ListView(
+                    shrinkWrap: true,
+                    children: [
+                      TimeSpentChart(
+                        reports: data,
+                      ),
+                      const Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 0, right: 30),
+                          child: Text(
+                            "(Today)",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: greenDarkColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
+                    ],
+                  );
+                } else {
+                  return const AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Center(
+                        child: SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: CircularProgressIndicator(),
+                    )),
+                  );
+                }
               },
-              loading: () => AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(),
-              ),
-              error: (error, stackTrace) => Text('Error: $error'),
             ),
             20.vGap,
             const Divider(),
@@ -160,11 +175,9 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                                     50.vGap,
                                     CommonButton(
                                       onPressed: () async {
-                                        var sharedPref =
-                                            ref.read(sharedPrefProvider);
-                                        sharedPref.setInt("reminderMins",
+                                        setReminderMinute(
                                             reminderMins[selectedOption]);
-                                        ref.invalidate(reminderMinutesProvider);
+
                                         Navigator.of(context).pop();
                                       },
                                       title: AppLocalizations.of(context)!.done,
