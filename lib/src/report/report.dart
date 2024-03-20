@@ -27,7 +27,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   getReminderMinute() async {
     var sharedPrefs = await SharedPreferences.getInstance();
-    var reminderMinute = sharedPrefs.getInt('reminderMins') ?? 0;
+    var reminderMinute = sharedPrefs.getInt('reminderMins') ?? 1;
     setState(() {
       selectedOption = reminderMins.indexOf(reminderMinute);
     });

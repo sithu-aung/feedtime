@@ -18,11 +18,8 @@ class ReportCubit extends Cubit<ReportState> {
   ReportCubit({required this.isar}) : super(ReportInitialState());
 
   void fetchLastWeekData() async {
-    final lastWeekData = await isar.reportDatas
-        .where()
-        .sortByDateTime() // use index
-        .limit(7)
-        .findAll();
+    final lastWeekData =
+        await isar.reportDatas.where().sortByDateTime().limit(7).findAll();
     emit(ReportLoadedState(lastWeekData));
   }
 }

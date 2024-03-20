@@ -28,7 +28,7 @@ class _FeedingScreenState extends State<FeedingScreen> {
 
   getReminderMinute() async {
     var sharedPrefs = await SharedPreferences.getInstance();
-    reminderMinute = sharedPrefs.getInt('reminderMins') ?? 0;
+    reminderMinute = sharedPrefs.getInt('reminderMins') ?? 1;
     setState(() {});
   }
 
@@ -36,9 +36,10 @@ class _FeedingScreenState extends State<FeedingScreen> {
   Widget build(BuildContext context) {
     return BlocListener<FeedCubit, FeedState>(listener: (context, state) {
       if (reminderMinute != 0) {
-        if (state.counter == (reminderMinute * 60) && !state.hasShownReminder) {
+        if ((state.counter % (reminderMinute * 60) == 0) &&
+            !state.hasShownReminder) {
           context.read<FeedCubit>().saveTodayData(state.counter);
-          context.read<FeedCubit>().checkedHasShownReminder();
+
           showDialog(
             context: context,
             builder: (context) => ReminderDialog(

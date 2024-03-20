@@ -23,7 +23,7 @@ class FeedCubit extends Cubit<FeedState> {
     final todayData = fetchData();
     if (todayData != null) {
       emit(FeedState(todayData.screenTime, state.timer, todayData,
-          state.hasShownReminder));
+          true));
     }
     startTimer();
   }
@@ -31,16 +31,12 @@ class FeedCubit extends Cubit<FeedState> {
   void startTimer() {
     Timer.periodic(const Duration(seconds: 1), (timer) {
       emit(FeedState(
-          state.counter + 1, timer, state.todayData, state.hasShownReminder));
+          state.counter + 1, timer, state.todayData, false));
     });
   }
 
   void cancelTimer() {
     state.timer?.cancel();
-  }
-
-  void checkedHasShownReminder() {
-    emit(FeedState(state.counter, state.timer, state.todayData, true));
   }
 
   Future<void> getTodayData() async {
@@ -53,7 +49,7 @@ class FeedCubit extends Cubit<FeedState> {
     cancelTimer();
     final todayData = await saveData(screenTime);
     emit(FeedState(
-        state.counter, state.timer, todayData, state.hasShownReminder));
+        state.counter, state.timer, todayData, true));
   }
 
   fetchData() {
